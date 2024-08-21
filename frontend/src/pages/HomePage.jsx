@@ -17,6 +17,11 @@ const HomePage = () => {
 
 		try {
 			const userRes = await fetch(`https://api.github.com/users/${username}`)
+
+			if(!userRes.ok){
+				throw new Error('User not found')
+			}
+
 			const userProfile = await userRes.json()
 			setUserProfile(userProfile)
 
