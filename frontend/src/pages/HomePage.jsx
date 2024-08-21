@@ -12,11 +12,11 @@ const HomePage = () => {
 	const [loading, setLoading] = useState(false)
 	const [sortType, setSortType] = useState('recent')
 
-	const getUserProfileAndRepos = useCallback(async () => {
+	const getUserProfileAndRepos = useCallback(async (username = 'araviind-p') => {
 		setLoading(true)
 
 		try {
-			const userRes = await fetch('https://api.github.com/users/araviind-p')
+			const userRes = await fetch(`https://api.github.com/users/${username}`)
 			const userProfile = await userRes.json()
 			setUserProfile(userProfile)
 
@@ -25,6 +25,7 @@ const HomePage = () => {
 			setRepos(repos)
 			console.log('userProfile...', userProfile)
 			console.log('userRepos...', repos);
+			return { userProfile, repos }
 		} catch (error) {
 			toast.error(error.message)
 		} finally {
@@ -33,16 +34,31 @@ const HomePage = () => {
 	}, [])
 
 	useEffect(() => {
-		getUserProfileAndRepos();
+		getUserProfileAndRepos('araviind-p');
 	}, [getUserProfileAndRepos])
+
+	const onSearch = async (e, username) => {
+		e.preventDefault();
+
+		setLoading(true)
+		setUserProfile(null)
+		setRepos([])
+
+		const { userProfile, repos } = await getUserProfileAndRepos(username)
+		console.log("userProfile in homee...", userProfile);
+		console.log("repos in homee...", repos);
+		setUserProfile(userProfile)
+		setRepos(repos)
+		setLoading(false)
+	}
 
 	return (
 		<div className='m-4'>
-			<Search />
+			<Search onSearch={onSearch} />
 			<SortRepos />
 			<div className='flex gap-4 flex-col lg:flex-row justify-center items-start'>
 				{userProfile && !loading && <ProfileInfo userProfile={userProfile} />}
-				{repos.length > 0 && !loading && <Repos repos={repos}/>}
+				{!loading && <Repos repos={repos} />}
 				{loading && <Spinner />}
 			</div>
 		</div>
