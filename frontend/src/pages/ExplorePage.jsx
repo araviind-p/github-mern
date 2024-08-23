@@ -53,7 +53,6 @@ const ExplorePage = () => {
 						<span className='bg-blue-100 text-blue-800 font-medium me-2 px-2.5 py-0.5 rounded-full '>
 							{selectedLanguage.toUpperCase()}{" "}
 						</span>
-						Repositories
 					</h2>
 				)}
 				{!loading && repos.length > 0 && <Repos repos={repos} alwaysFullWidth />}
