@@ -9,7 +9,7 @@ body {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    min-height: 100dvh;
+    min-height: 110vh;
 }
 
 /* dark mode looking scrollbar */
