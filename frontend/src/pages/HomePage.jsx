@@ -16,23 +16,12 @@ const HomePage = () => {
 		setLoading(true)
 
 		try {
-			const userRes = await fetch(`https://api.github.com/users/${username}`,{
-				headers:{
-					authorization:`token ${import.meta.env.VITE_GITHUB_API_KEY}`
-				}
-			})
 
-			if(!userRes.ok){
-				throw new Error('User not found')
-			}
-
-			const userProfile = await userRes.json()
-			setUserProfile(userProfile)
-
-			const repoRes = await fetch(userProfile.repos_url);
-			const repos = await repoRes.json()
+			const res = await fetch(`http://localhost:5000/api/users/profile/${username}`)
+			const { repos, userProfile } = await res.json()
+			repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) //descending
 			setRepos(repos)
-			repos.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at)) //descending
+			setUserProfile(userProfile)
 			console.log('userProfile...', userProfile)
 			console.log('userRepos...', repos);
 			return { userProfile, repos }
@@ -64,13 +53,13 @@ const HomePage = () => {
 
 	}
 
-	const onSort=(sortType)=>{
-		if(sortType === 'recent'){
-			repos.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at)) //descending
-		}else if(sortType === 'stars'){
-			repos.sort((a,b)=>b.stargazers_count - a .stargazers_count) //descending , most stars first
-		}else if(sortType==='forks'){
-			repos.sort((a,b)=>b.forks_count - a.forks_count) //descending , most forks first
+	const onSort = (sortType) => {
+		if (sortType === 'recent') {
+			repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) //descending
+		} else if (sortType === 'stars') {
+			repos.sort((a, b) => b.stargazers_count - a.stargazers_count) //descending , most stars first
+		} else if (sortType === 'forks') {
+			repos.sort((a, b) => b.forks_count - a.forks_count) //descending , most forks first
 		}
 		setSortType(sortType)
 		setRepos([...repos])
