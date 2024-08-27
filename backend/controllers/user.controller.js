@@ -34,22 +34,27 @@ export const likeProfile = async (req, res) => {
         const { username } = req.params;
         const user = await User.findById(req.user._id.toString());
         console.log(user, "auth user");
-        const userToLike = await User.findOne({ username });
+        // const userToLike = await User.findOne({ username });
 
-        if (!userToLike) {
-            return res.status(404).json({ error: "User is not a member" });
-        }
+        // if (!userToLike) {
+        //     return res.status(404).json({ error: "User is not a member" });
+        // }
 
-        if (user.likedProfiles.includes(userToLike.username)) {
+        // if (user.likedProfiles.includes(userToLike.username)) {
+        //     return res.status(400).json({ error: "User already liked" });
+        // }
+
+        if (user.likedProfiles.includes(username)) {
             return res.status(400).json({ error: "User already liked" });
         }
 
-        userToLike.likedBy.push({ username: user.username, avatarUrl: user.avatarUrl, likedDate: Date.now() });
-        user.likedProfiles.push(userToLike.username);
+        // userToLike.likedBy.push({ username: user.username, avatarUrl: user.avatarUrl, likedDate: Date.now() });
+        // user.likedProfiles.push(userToLike.username);
+        user.likedProfiles.push(username);
 
         // await userToLike.save();
-        // await user.save();
-        await Promise.all([userToLike.save(), user.save()]);
+        await user.save();
+        // await Promise.all([userToLike.save(), user.save()]);
 
         res.status(200).json({ message: "User liked" });
     } catch (error) {
