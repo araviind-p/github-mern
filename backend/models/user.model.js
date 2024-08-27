@@ -18,10 +18,21 @@ const userSchema = new mongoose.Schema(
 		avatarUrl: {
 			type: String,
 		},
-		likedProfiles: {
-			type: [String],
-			default: [],
-		},
+		likedProfiles: [
+			{
+				username: {
+					type: String,
+					required: true,
+				},
+				avatarUrl: {
+					type: String,
+				},
+				likedDate: {
+					type: Date,
+					default: Date.now,
+				},
+			},
+		],
 		likedBy: [
 			{
 				username: {

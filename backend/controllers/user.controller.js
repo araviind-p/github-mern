@@ -29,28 +29,77 @@ export const getUserProfileAndRepos = async (req, res) => {
     }
 }
 
+// export const likeProfile = async (req, res) => {
+//     try {
+//         const { username } = req.params;
+//         // const user = await User.findById(req.user._id.toString());
+//         const authUser = await User.findById(req.user._id.toString());
+//         // console.log(user, "auth user");
+//         // const userToLike = await User.findOne({ username });
+
+//         // if (!userToLike) {
+//         //     return res.status(404).json({ error: "User is not a member" });
+//         // }
+
+//         // if (user.likedProfiles.includes(userToLike.username)) {
+//         //     return res.status(400).json({ error: "User already liked" });
+//         // }
+
+//         if (authUser.likedProfiles.includes(username)) {
+//             return res.status(400).json({ error: "User already liked" });
+//         }
+
+//         // userToLike.likedBy.push({ username: user.username, avatarUrl: user.avatarUrl, likedDate: Date.now() });
+//         // user.likedProfiles.push(userToLike.username);
+//         const userRes = await fetch(`https://api.github.com/users/${username}`, {
+//             headers: {
+//                 authorization: `token ${process.env.GITHUB_API_KEY}`
+//             }
+//         });
+
+//         if (!userRes.ok) {
+//             throw new Error('User not found');
+//         }
+
+//         const userProfile = await userRes.json();
+
+//         authUser.likedProfiles.push({
+//             username: userProfile.login,  // Use 'login' instead of 'username' to match GitHub's response
+//             avatarUrl: userProfile.avatar_url,
+//             likedDate: Date.now()
+//         });
+
+//         await authUser.save();
+
+//         // await userToLike.save();
+//         // await user.save();
+//         // await Promise.all([userToLike.save(), user.save()]);
+
+//         res.status(200).json({ message: "User liked" });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
+
 export const likeProfile = async (req, res) => {
     try {
         const { username } = req.params;
-        // const user = await User.findById(req.user._id.toString());
         const authUser = await User.findById(req.user._id.toString());
-        // console.log(user, "auth user");
-        // const userToLike = await User.findOne({ username });
 
-        // if (!userToLike) {
-        //     return res.status(404).json({ error: "User is not a member" });
-        // }
+        if (!authUser) {
+            return res.status(404).json({ error: "Authenticated user not found" });
+        }
 
-        // if (user.likedProfiles.includes(userToLike.username)) {
-        //     return res.status(400).json({ error: "User already liked" });
-        // }
+        // Check if the profile has already been liked
+        const isAlreadyLiked = authUser.likedProfiles.some(
+            (profile) => profile.username === username
+        );
 
-        if (authUser.likedProfiles.includes(username)) {
+        if (isAlreadyLiked) {
             return res.status(400).json({ error: "User already liked" });
         }
 
-        // userToLike.likedBy.push({ username: user.username, avatarUrl: user.avatarUrl, likedDate: Date.now() });
-        // user.likedProfiles.push(userToLike.username);
         const userRes = await fetch(`https://api.github.com/users/${username}`, {
             headers: {
                 authorization: `token ${process.env.GITHUB_API_KEY}`
@@ -64,16 +113,12 @@ export const likeProfile = async (req, res) => {
         const userProfile = await userRes.json();
 
         authUser.likedProfiles.push({
-            username: userProfile.login,  // Use 'login' instead of 'username' to match GitHub's response
+            username: userProfile.login,
             avatarUrl: userProfile.avatar_url,
             likedDate: Date.now()
         });
 
         await authUser.save();
-
-        // await userToLike.save();
-        // await user.save();
-        // await Promise.all([userToLike.save(), user.save()]);
 
         res.status(200).json({ message: "User liked" });
     } catch (error) {
@@ -81,10 +126,11 @@ export const likeProfile = async (req, res) => {
     }
 };
 
+
 export const getLikes = async (req, res) => {
     try {
         const user = await User.findById(req.user._id.toString());
-        res.status(200).json({ likedBy: user.likedBy });
+        res.status(200).json({ likedBy: user.likedProfiles });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
