@@ -34,9 +34,8 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    if (authUser) {
-      getUserProfileAndRepos(authUser.username);
-    }
+    const username = authUser ? authUser.username : 'araviind-p';
+    getUserProfileAndRepos(username);
   }, [authUser, getUserProfileAndRepos]);
 
   const onSearch = async (e, username) => {
@@ -70,11 +69,27 @@ const HomePage = () => {
   return (
     <div className="m-4">
       <Search onSearch={onSearch} />
-      {repos.length > 0 && <SortRepos onSort={onSort} sortType={sortType} />}
-      <div className="flex gap-4 flex-col lg:flex-row justify-center items-start">
-        {userProfile && !loading && <ProfileInfo userProfile={userProfile} />}
-        {!loading && <Repos repos={repos} />}
-        {loading && <Spinner />}
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-4">
+        {/* ProfileInfo and SortRepos are displayed side-by-side on larger screens */}
+        <div className="flex flex-col gap-4 lg:w-2/4">
+          {userProfile && !loading && <ProfileInfo userProfile={userProfile} />}
+        </div>
+        <div className="flex flex-col gap-4 lg:w-3/4">
+          {repos.length > 0 && !loading && (
+            <div className="flex flex-col gap-4">
+              <div className="w-full lg:hidden">
+                <SortRepos onSort={onSort} sortType={sortType} />
+              </div>
+              <div className="hidden lg:block w-full">
+                <SortRepos onSort={onSort} sortType={sortType} />
+              </div>
+              <div className="w-full">
+                <Repos repos={repos} />
+              </div>
+            </div>
+          )}
+          {loading && <Spinner />}
+        </div>
       </div>
     </div>
   );
