@@ -53,7 +53,7 @@ const LikesPage = () => {
 	}, []);
 
 	return (
-		<div className='relative overflow-x-auto shadow-md rounded-lg px-4'>
+		<div className='relative overflow-x-hidden shadow-md rounded-lg'>
 			{loading && (
 				// <div className='absolute inset-0 flex items-center justify-center bg-gray-800'>
 				<Spinner />
