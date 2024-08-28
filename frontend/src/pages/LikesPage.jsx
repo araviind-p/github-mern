@@ -59,7 +59,6 @@ const LikesPage = () => {
 							<td className='px-6 py-4'>
 								<div className='flex items-center'>
 									<FaHeart size={22} className='text-red-500 mx-2' />
-									Liked your profile
 								</div>
 							</td>
 						</tr>
