@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { IoHomeSharp } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa";
-import { MdOutlineExplore } from "react-icons/md";
+import { MdOutlineExplore, MdEditDocument } from "react-icons/md";
 import { PiSignInBold } from "react-icons/pi";
-import { MdEditDocument } from "react-icons/md";
 import Logout from "./Logout.jsx";
 import { useAuthContext } from "../context/AuthContext.jsx";
 
@@ -12,21 +11,21 @@ const Sidebar = () => {
 
     return (
         <aside
-            className='flex flex-col items-center sm:w-16 sticky top-0 left-0 h-dvh py-8
-      overflow-y-auto  bg-glass border-b-0'
+            className='flex flex-col items-center w-16 sticky top-0 left-0 h-dvh py-8
+                overflow-y-auto bg-glass border-b-0'
         >
             <nav className='h-full flex flex-col gap-3'>
                 <Link to='/' className='flex justify-center'>
                     <img className='h-8' src='/github.svg' alt='Github Logo' />
                 </Link>
 
-                <Link
+                {/* <Link
                     to='/'
                     className='p-1.5 flex justify-center transition-colors duration-200 rounded-lg 
-					hover:bg-gray-800'
+                    hover:bg-gray-800'
                 >
                     <IoHomeSharp size={20} />
-                </Link>
+                </Link> */}
 
                 {authUser && (
                     <Link
@@ -49,7 +48,7 @@ const Sidebar = () => {
                 {!authUser && (
                     <Link
                         to='/login'
-                        className='p-1.5 focus:outline-nones transition-colors duration-200 rounded-lg hover:bg-gray-800'
+                        className='p-1.5 focus:outline-none transition-colors duration-200 rounded-lg hover:bg-gray-800'
                     >
                         <PiSignInBold size={25} />
                     </Link>
@@ -58,7 +57,7 @@ const Sidebar = () => {
                 {!authUser && (
                     <Link
                         to='/signup'
-                        className='p-1.5 focus:outline-nones transition-colors duration-200 rounded-lg hover:bg-gray-800'
+                        className='p-1.5 focus:outline-none transition-colors duration-200 rounded-lg hover:bg-gray-800'
                     >
                         <MdEditDocument size={25} />
                     </Link>
@@ -73,4 +72,5 @@ const Sidebar = () => {
         </aside>
     );
 };
+
 export default Sidebar;
