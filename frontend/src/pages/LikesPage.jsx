@@ -1,10 +1,41 @@
 import { useEffect, useState } from "react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaSpinner } from "react-icons/fa"; // Import spinner icon
 import toast from "react-hot-toast";
 import { formatDate } from "../utils/functions";
+import { useAuthContext } from "../context/AuthContext";
+import Spinner from "../components/Spinner"; // Ensure this is the correct path
 
 const LikesPage = () => {
 	const [likes, setLikes] = useState([]);
+	const [loading, setLoading] = useState(false); // Add loading state
+	const { authUser } = useAuthContext();
+
+	const handleLikes = async (user) => {
+		try {
+			setLoading(true); // Start loading
+			const res = await fetch(`/api/users/removeLike/${user.username}`, {
+				method: "POST", // Assuming removeLike is a POST request
+				credentials: "include"
+			});
+			const data = await res.json();
+
+			if (data.error) throw new Error(data.error);
+
+			// Handle success (e.g., update UI, notify user)
+			toast.success(data.message);
+
+			// Refresh the likes list
+			const resLikes = await fetch("/api/users/likes", { credentials: "include" });
+			const dataLikes = await resLikes.json();
+			if (dataLikes.error) throw new Error(dataLikes.error);
+
+			setLikes(dataLikes.likedBy);
+		} catch (error) {
+			toast.error(error.message);
+		} finally {
+			setLoading(false); // Stop loading
+		}
+	};
 
 	useEffect(() => {
 		const getLikes = async () => {
@@ -20,10 +51,15 @@ const LikesPage = () => {
 		};
 		getLikes();
 	}, []);
-	console.log("likes:", likes);
 
 	return (
 		<div className='relative overflow-x-auto shadow-md rounded-lg px-4'>
+			{loading && (
+				// <div className='absolute inset-0 flex items-center justify-center bg-gray-800'>
+				<Spinner />
+				/* Ensure Spinner component shows a loading animation */
+				// </div>
+			)}
 			<table className='w-full text-sm text-left rtl:text-right bg-glass overflow-hidden'>
 				<thead className='text-xs uppercase bg-glass'>
 					<tr>
@@ -49,7 +85,7 @@ const LikesPage = () => {
 									<span>{idx + 1}</span>
 								</div>
 							</td>
-							<th scope='row' className='flex items-center px-6 py-4 whitespace-nowrap '>
+							<th scope='row' className='flex items-center px-6 py-4 whitespace-nowrap'>
 								<img className='w-10 h-10 rounded-full' src={user.avatarUrl} alt='User Avatar' />
 								<div className='ps-3'>
 									<div className='text-base font-semibold'>{user.username}</div>
@@ -58,7 +94,7 @@ const LikesPage = () => {
 							<td className='px-6 py-4'>{formatDate(user.likedDate)}</td>
 							<td className='px-6 py-4'>
 								<div className='flex items-center'>
-									<FaHeart size={22} className='text-red-500 mx-2' />
+									<FaHeart onClick={() => handleLikes(user)} size={22} className='text-red-500 mx-2 cursor-pointer' />
 								</div>
 							</td>
 						</tr>
@@ -68,4 +104,5 @@ const LikesPage = () => {
 		</div>
 	);
 };
+
 export default LikesPage;
