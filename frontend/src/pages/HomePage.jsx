@@ -1,18 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ProfileInfo from "../components/ProfileInfo";
 import Repos from "../components/Repos";
 import Search from "../components/Search";
 import SortRepos from "../components/SortRepo";
 import Spinner from "../components/Spinner";
 import { toast } from "react-hot-toast";
-import { useAuthContext } from "../context/AuthContext"; // Import AuthContext to access authUser
+import { useAuthContext } from "../context/AuthContext";
 
 const HomePage = () => {
-  const { authUser } = useAuthContext(); // Access the authenticated user
+  const { authUser } = useAuthContext();
   const [userProfile, setUserProfile] = useState(null);
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [sortType, setSortType] = useState("recent");
+
+  const navigate = useNavigate();
 
   const getUserProfileAndRepos = useCallback(async (username) => {
     setLoading(true);
@@ -20,6 +23,7 @@ const HomePage = () => {
     try {
       const res = await fetch(`/api/users/profile/${username}`);
       if (res.status === 404) {
+        navigate('/login')
         throw new Error('User not found');
       }
       const { repos, userProfile } = await res.json();
@@ -41,26 +45,6 @@ const HomePage = () => {
     getUserProfileAndRepos(username);
   }, [authUser, getUserProfileAndRepos]);
 
-  // const onSearch = async (e, username) => {
-  //   e.preventDefault();
-
-  //   setLoading(true);
-  //   setUserProfile(null);
-  //   setRepos([]);
-
-  //   const { userProfile, repos } = await getUserProfileAndRepos(username);
-  //   if(!userProfile || !repos){
-  //     toast.error("User not found");
-  //     return;
-  //   }
-  //   console.log("userProfile in home...", userProfile);
-  //   console.log("repos in home...", repos);
-  //   setUserProfile(userProfile);
-  //   setRepos(repos);
-  //   setLoading(false);
-  //   setSortType("recent");
-  // };
-
   const onSearch = async (e, username) => {
     e.preventDefault();
 
@@ -69,11 +53,14 @@ const HomePage = () => {
     setRepos([]);
 
     try {
-      const { userProfile, repos } = await getUserProfileAndRepos(username);
-      if (!userProfile || repos.length === 0) {
-        toast.error("User not found");
+      const result = await getUserProfileAndRepos(username);
+
+      if (!result || !result.userProfile || result.repos.length === 0) {
+        console.log('User not found');
         return;
       }
+
+      const { userProfile, repos } = result;
       console.log("userProfile in home...", userProfile);
       console.log("repos in home...", repos);
       setUserProfile(userProfile);
@@ -85,7 +72,8 @@ const HomePage = () => {
       setLoading(false);
     }
   };
-  
+
+
   const onSort = (sortType) => {
     if (sortType === "recent") {
       repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // descending
