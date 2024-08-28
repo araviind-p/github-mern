@@ -19,6 +19,9 @@ const HomePage = () => {
 
     try {
       const res = await fetch(`/api/users/profile/${username}`);
+      if (res.status === 404) {
+        throw new Error('User not found');
+      }
       const { repos, userProfile } = await res.json();
       repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // descending
       setRepos(repos);
@@ -38,6 +41,26 @@ const HomePage = () => {
     getUserProfileAndRepos(username);
   }, [authUser, getUserProfileAndRepos]);
 
+  // const onSearch = async (e, username) => {
+  //   e.preventDefault();
+
+  //   setLoading(true);
+  //   setUserProfile(null);
+  //   setRepos([]);
+
+  //   const { userProfile, repos } = await getUserProfileAndRepos(username);
+  //   if(!userProfile || !repos){
+  //     toast.error("User not found");
+  //     return;
+  //   }
+  //   console.log("userProfile in home...", userProfile);
+  //   console.log("repos in home...", repos);
+  //   setUserProfile(userProfile);
+  //   setRepos(repos);
+  //   setLoading(false);
+  //   setSortType("recent");
+  // };
+
   const onSearch = async (e, username) => {
     e.preventDefault();
 
@@ -45,15 +68,24 @@ const HomePage = () => {
     setUserProfile(null);
     setRepos([]);
 
-    const { userProfile, repos } = await getUserProfileAndRepos(username);
-    console.log("userProfile in home...", userProfile);
-    console.log("repos in home...", repos);
-    setUserProfile(userProfile);
-    setRepos(repos);
-    setLoading(false);
-    setSortType("recent");
+    try {
+      const { userProfile, repos } = await getUserProfileAndRepos(username);
+      if (!userProfile || repos.length === 0) {
+        toast.error("User not found");
+        return;
+      }
+      console.log("userProfile in home...", userProfile);
+      console.log("repos in home...", repos);
+      setUserProfile(userProfile);
+      setRepos(repos);
+      setSortType("recent");
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
   const onSort = (sortType) => {
     if (sortType === "recent") {
       repos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // descending

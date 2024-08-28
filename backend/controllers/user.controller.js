@@ -11,7 +11,10 @@ export const getUserProfileAndRepos = async (req, res) => {
         })
 
         if (!userRes.ok) {
-            throw new Error('User not found')
+            if (userRes.status === 404) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            throw new Error('Failed to fetch user profile');
         }
 
         const userProfile = await userRes.json()
